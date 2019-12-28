@@ -181,17 +181,17 @@ int main() {
 		switch (sensorValue)
 		{
      			case 1:
-     			GPIOWrite(PIN_RED, HIGH);
-     			;
-     			case 2:
-     			GPIOWrite(PIN_YELLOW, HIGH);
-     			;
+	     			GPIOWrite(PIN_RED, HIGH);
+				break;
+			case 2:
+     				GPIOWrite(PIN_YELLOW, HIGH);
+     				break;
      			case 3:
-     			GPIOWrite(PIN_GREEN, HIGH);
-     			;
+     				GPIOWrite(PIN_GREEN, HIGH);
+				break;
 		}
-                sleep(10);
-         }
+		sleep(10);
+        }
 
         return 0;
 }
