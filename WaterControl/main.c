@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <fcntl.h>
 #include <signal.h>
 #include "GPIOControl.h"
@@ -18,9 +16,7 @@ int readSensor() {
 	return rand() % 3 + 1;
 }
 
-
-void INThandler(int sig)
-{
+void INThandler(int sig) {
 	char  c;
 	
 	signal(sig, SIG_IGN);
@@ -37,7 +33,11 @@ void INThandler(int sig)
 	} else {
 		signal(SIGINT, INThandler);
 	}
-     	getchar(); // Get new line character
+     	getchar();
+}
+
+void printLog(int sensorValue) {
+	printf("%d\n", sensorValue);
 }
 
 int main() {
@@ -61,13 +61,12 @@ int main() {
         GPIOWrite(POUT_CONTROL, HIGH);
 
         while(true) {
-
 		GPIOWrite(PIN_RED, LOW);
 		GPIOWrite(PIN_YELLOW, LOW);
 		GPIOWrite(PIN_GREEN, LOW);
 
 		int sensorValue = readSensor();
-		printf("%d\n", sensorValue);
+		printLog(sensorValue);
 		switch (sensorValue)
 		{
      			case 1:
