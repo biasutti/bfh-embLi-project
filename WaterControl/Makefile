@@ -3,11 +3,14 @@ CFLAGS=-c -Wall
 
 all: watercontrol
 
-watercontrol: main.o
-	$(CC) main.o -o ./bin/watercontrol
+watercontrol: main.o GPIOControl.o
+	$(CC) main.o GPIOControl.o -o ./bin/watercontrol
 
 main.o: main.c
 	$(CC) $(CFLAGS) main.c
+
+GPIOControl.o: GPIOControl.c
+	$(CC) $(CFLAGS) GPIOControl.c
 
 .PHONY: clean
 clean:
