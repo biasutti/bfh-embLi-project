@@ -12,8 +12,15 @@
 #define POUT_CONTROL 4
 
 #define PIN_SENSOR 23
+#define PIN_BUTTON 24
+
+// TODO: Implement later
+int readConfig() {
+	return 0;
+}
 
 //TODO: Implement read temp sensor values
+// Currently digital dignal, improve for analog signal
 int readSensor() {
 	return GPIORead(PIN_SENSOR);
 	//return rand() % 3 + 1;
@@ -33,6 +40,7 @@ void INThandler(int sig) {
 		GPIOUnexport(PIN_GREEN);
 
 		GPIOUnexport(PIN_SENSOR);
+		GPIOUnexport(PIN_BUTTON);
 
 		exit(0);
 	} else {
@@ -45,46 +53,63 @@ void printLog(int sensorValue) {
 	printf("%d\n", sensorValue);
 }
 
+int initializeGPIO() {
+	if(-1 == GPIOExport(POUT_CONTROL) ||
+                -1 == GPIOExport(PIN_RED) ||
+                -1 == GPIOExport(PIN_YELLOW) ||
+                -1 == GPIOExport(PIN_GREEN) ||
+                -1 == GPIOExport(PIN_SENSOR) ||
+		-1 == GPIOExport(PIN_BUTTON)) {
+                return -1;
+        }
+
+	if(-1 == GPIODirection(POUT_CONTROL, OUT) ||
+                -1 == GPIODirection(PIN_RED, OUT) ||
+                -1 == GPIODirection(PIN_YELLOW, OUT) ||
+                -1 == GPIODirection(PIN_GREEN, OUT) ||
+                -1 == GPIODirection(PIN_SENSOR, IN) ||
+		-1 == GPIODirection(PIN_BUTTON, IN)) {
+                return -1;
+        }
+
+	return 0;
+}
+
 int main() {
 
 	signal(SIGINT, INThandler);
 
-        if(-1 == GPIOExport(POUT_CONTROL) ||
-		-1 == GPIOExport(PIN_RED) || 
-		-1 == GPIOExport(PIN_YELLOW) ||
-		-1 == GPIOExport(PIN_GREEN) ||
-		-1 == GPIOExport(PIN_SENSOR)) {
-                return 1;
-        }
-
-        if(-1 == GPIODirection(POUT_CONTROL, OUT) ||
-		-1 == GPIODirection(PIN_RED, OUT) ||
-		-1 == GPIODirection(PIN_YELLOW, OUT) ||
-		-1 == GPIODirection(PIN_GREEN, OUT) ||
-		-1 == GPIODirection(PIN_SENSOR, IN)) {
-                return 1;
-        }
+        if (-1 == initializeGPIO()) {
+		return 1;
+	}
 
         GPIOWrite(POUT_CONTROL, HIGH);
 
-        while(true) {
-		GPIOWrite(PIN_RED, LOW);
-		GPIOWrite(PIN_YELLOW, LOW);
-		GPIOWrite(PIN_GREEN, LOW);
+	int sensorValue = -1;
 
-		int sensorValue = readSensor();
-		printLog(sensorValue);
-		switch (sensorValue)
-		{
-     			case 0:
-	     			GPIOWrite(PIN_RED, HIGH);
-				break;
-			case 2:
-     				GPIOWrite(PIN_YELLOW, HIGH);
-     				break;
-     			case 1:
-     				GPIOWrite(PIN_GREEN, HIGH);
-				break;
+        while(true) {
+		if(sensorValue != readSensor() ||
+			GPIORead(PIN_BUTTON) == 0) {
+			
+			sensorValue = readSensor();
+			GPIOWrite(PIN_RED, LOW);
+                	GPIOWrite(PIN_YELLOW, LOW);
+        	        GPIOWrite(PIN_GREEN, LOW);
+	
+			printLog(sensorValue);	
+		
+			switch (sensorValue)
+			{
+     				case 0:
+	     				GPIOWrite(PIN_RED, HIGH);
+					break;
+				case 2:
+     					GPIOWrite(PIN_YELLOW, HIGH);
+     					break;
+     				case 1:
+     					GPIOWrite(PIN_GREEN, HIGH);
+					break;
+			}
 		}
 		sleep(1);
         }
