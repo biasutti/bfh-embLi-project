@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -49,8 +50,44 @@ void INThandler(int sig) {
      	getchar();
 }
 
-void printLog(int sensorValue) {
+void printLog(int severityVal, char message[]) {
+	
+	FILE *f;
+	f = fopen("plantmonitor.log", "a+");
+	if(f == NULL) {
+		printf("ERROR: Cannot write logfile");
+	}
+	
+	char date[100];
+	time_t now = time(NULL);
+	struct tm * p = localtime(&now);
+	strftime(date, 100, "%c", p);
+
+	char* severity;
+
+	switch (severityVal)
+        {
+	        case 0:
+			severity = "INFO";
+        		break;
+                case 1:
+			severity = "WARNING";
+                        break;
+                case 2:
+			severity = "ERROR";
+                        break;
+       	}
+
+	fprintf(f, "%s - %s - %s\n", date, severity, message);
+}
+
+void printSensorValue(int sensorValue) {
 	printf("%d\n", sensorValue);
+}
+
+// TODO: Sendmail when sensor get 1
+void sendMail() {
+
 }
 
 int initializeGPIO() {
@@ -105,7 +142,11 @@ int main() {
                 	GPIOWrite(PIN_YELLOW, LOW);
         	        GPIOWrite(PIN_GREEN, LOW);
 	
-			printLog(sensorValue);	
+			char buffer[15];
+			snprintf(buffer, 15, "Sensorvalue: %d", sensorValue);
+
+			printSensorValue(sensorValue);
+			printLog(0, buffer);
 		
 			switch (sensorValue)
 			{
