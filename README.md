@@ -1,4 +1,4 @@
-#Plantmonitor - README
+# Plantmonitor - README
 
 C-Programm to read a sensor over GPIO (sysfs). Control LEDs of its data and write a log file.
 
